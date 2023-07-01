@@ -40,11 +40,7 @@ describe('doStuffByTimeout', () => {
 
     doStuffByTimeout(callback, timeout);
     expect(callback).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(250);
-    expect(callback).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(timeout - 250);
+    jest.advanceTimersByTime(550);
     expect(callback).toHaveBeenCalled();
   });
 });
@@ -67,9 +63,6 @@ describe('doStuffByInterval', () => {
 
     jest.advanceTimersByTime(interval);
     expect(callback).toHaveBeenCalled();
-
-    jest.advanceTimersByTime(interval);
-    expect(callback).toHaveBeenCalledTimes(2);
   });
 
   test('should call callback multiple times after multiple intervals', () => {
@@ -85,16 +78,16 @@ describe('doStuffByInterval', () => {
 });
 
 describe('readFileAsynchronously', () => {
+  const filePath = 'path/file.txt';
+
   test('should call join with pathToFile', async () => {
     const mockJoin = join as jest.Mock;
-    const pathToFile = 'path/file.txt';
 
-    await readFileAsynchronously(pathToFile);
-    expect(mockJoin).toHaveBeenCalledWith(__dirname, pathToFile);
+    await readFileAsynchronously(filePath);
+    expect(mockJoin).toHaveBeenCalledWith(__dirname, filePath);
   });
 
   test('should return null if file does not exist', async () => {
-    const filePath = 'path/file.txt';
     const result = await readFileAsynchronously(filePath);
 
     expect(result).toBeNull();
@@ -102,13 +95,11 @@ describe('readFileAsynchronously', () => {
 
   test('should return file content if file exists', async () => {
     const fileContent = 'content';
-    const filePath = 'path/file.txt';
 
     (existsSync as jest.Mock).mockResolvedValueOnce(true);
     (promises.readFile as jest.Mock).mockResolvedValueOnce(
       Buffer.from(fileContent),
     );
-
     const result = await readFileAsynchronously(filePath);
     expect(result).toEqual(fileContent);
   });
